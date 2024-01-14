@@ -37,10 +37,9 @@ impl Component for TaskComponent {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let class = if self.ended { "checked-item" } else { "" };
         html! {
             <li>
-                <label class={class}>
+                <label class={if self.ended { "checked-item" } else { "" }}>
                     <input
                         type="checkbox"
                         checked={self.ended}
