@@ -9,30 +9,18 @@ struct Task {
 #[function_component(App)]
 pub fn app() -> Html {
     let tasks = vec![
-        Task {
-            title: "Buy groceries".to_owned(),
-        },
-        Task {
-            title: "Finish work presentation".to_owned(),
-        },
-        Task {
-            title: "Read a book".to_owned(),
-        },
-        Task {
-            title: "Clean the house".to_owned(),
-        },
-        Task {
-            title: "Plan a vacation".to_owned(),
-        },
-        Task {
-            title: "Do some Rust stuffs".to_owned(),
-        },
+        "Buy groceries".to_owned(),
+        "Finish work presentation".to_owned(),
+        "Read a book".to_owned(),
+        "Clean the house".to_owned(),
+        "Plan a vacation".to_owned(),
+        "Do some Rust stuffs".to_owned(),
     ];
     html! {
         <div class="container">
             <h1>{ "Todo App" }</h1>
             <ul id="task-list" class="todo-list">
-                {for tasks.iter().map(|item| html! { <TaskComponent title={item.title.clone()} />})}
+                {for tasks.iter().map(|item| html! { <TaskComponent title={item.clone()} />})}
             </ul>
         </div>
     }
