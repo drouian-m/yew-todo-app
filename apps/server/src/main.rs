@@ -8,10 +8,10 @@ use actix_web::{
 };
 
 use serde::Deserialize;
-use server::{tasks::Tasks, utils::load_demo};
+use server::{establish_connection, tasks_domain::Tasks, utils::load_demo};
 
-struct State {
-    pub tasks: Arc<Mutex<Tasks>>,
+struct State<'a> {
+    pub tasks: Arc<Mutex<Tasks<'a>>>,
 }
 
 #[derive(Deserialize)]
@@ -20,7 +20,7 @@ struct CreateTaskRequest {
 }
 
 #[get("/tasks")]
-async fn list_tasks(data: web::Data<State>) -> impl Responder {
+async fn list_tasks<'a>(data: web::Data<State<'a>>) -> impl Responder {
     let tasks = match data.tasks.lock() {
         Ok(tasks) => tasks,
         Err(_) => return HttpResponse::InternalServerError().finish(),
@@ -45,7 +45,8 @@ async fn create_task(data: web::Data<State>, req: web::Json<CreateTaskRequest>) 
 async fn main() -> std::io::Result<()> {
     let server = HttpServer::new(|| {
         let cors = Cors::default();
-        let mut tasks = Tasks::new();
+        let connection = &mut establish_connection();
+        let mut tasks = Tasks::new(connection);
         load_demo::load_demo(&mut tasks);
         let state = Data::new(State {
             tasks: Arc::new(Mutex::new(tasks)),

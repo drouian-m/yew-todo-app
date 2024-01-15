@@ -8,7 +8,9 @@ edition = "2021"
 [dependencies]
 actix-cors = "0.7.0"
 actix-web = "4"
-chrono = { version = "0.4.31", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+diesel = { version = "2.1", features = ["sqlite", "chrono",  "returning_clauses_for_sqlite_3_35"] }
+dotenvy = "0.15"
 nanoid = "0.4.0"
 serde = { version = "1", features = ["derive"] }
 types = { path = "../../packages/types" }
