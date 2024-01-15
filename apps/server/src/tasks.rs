@@ -1,4 +1,4 @@
-use crate::model::task::Task;
+use types::Task;
 
 #[derive(Clone)]
 pub struct Tasks {

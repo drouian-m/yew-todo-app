@@ -1,9 +1,8 @@
+use types::Task;
 use yew::prelude::*;
 
 pub struct TaskComponent {
-    id: String,
-    title: String,
-    ended: bool,
+    data: Task,
 }
 
 pub enum Msg {
@@ -12,7 +11,7 @@ pub enum Msg {
 
 #[derive(Properties, PartialEq)]
 pub struct TaskProps {
-    pub title: String,
+    pub task: Task,
 }
 
 impl Component for TaskComponent {
@@ -21,16 +20,14 @@ impl Component for TaskComponent {
 
     fn create(ctx: &Context<Self>) -> Self {
         Self {
-            id: chrono::offset::Local::now().to_string(),
-            title: ctx.props().title.clone(),
-            ended: false,
+            data: ctx.props().task.clone(),
         }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::Toggle() => {
-                self.ended = !self.ended;
+                self.data.completed = !self.data.completed;
                 true // Indicate that the view should be re-rendered
             }
         }
@@ -39,13 +36,13 @@ impl Component for TaskComponent {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <li>
-                <label class={if self.ended { "checked-item" } else { "" }}>
+                <label id="task-{self.data.id}" class={if self.data.completed { "checked-item" } else { "" }}>
                     <input
                         type="checkbox"
-                        checked={self.ended}
+                        checked={self.data.completed}
                         onclick={ctx.link().callback(|_| Msg::Toggle())}
                     />
-                    { &self.title }
+                    { &self.data.title }
                 </label>
             </li>
         }

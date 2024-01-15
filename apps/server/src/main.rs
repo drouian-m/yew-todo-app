@@ -21,9 +21,12 @@ struct CreateTaskRequest {
 
 #[get("/tasks")]
 async fn list_tasks(data: web::Data<State>) -> impl Responder {
-    let tasks = data.tasks.lock().unwrap();
-    let items: &Vec<server::model::task::Task> = tasks.list();
-    web::Json(items.clone())
+    let tasks = match data.tasks.lock() {
+        Ok(tasks) => tasks,
+        Err(_) => return HttpResponse::InternalServerError().finish(),
+    };
+    let items = tasks.list();
+    HttpResponse::Ok().json(items.clone())
 }
 
 #[post("/tasks")]
