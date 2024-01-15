@@ -10,13 +10,13 @@ pub enum Msg {
 }
 
 #[derive(Properties, PartialEq)]
-pub struct TaskProps {
+pub struct Props {
     pub task: Task,
 }
 
 impl Component for TaskComponent {
     type Message = Msg;
-    type Properties = TaskProps;
+    type Properties = Props;
 
     fn create(ctx: &Context<Self>) -> Self {
         Self {

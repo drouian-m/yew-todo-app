@@ -1884,8 +1884,10 @@ dependencies = [
  "chrono",
  "gloo-net 0.5.0",
  "serde",
+ "serde_json",
  "types",
  "wasm-bindgen-futures",
+ "web-sys",
  "yew",
 ]
 
