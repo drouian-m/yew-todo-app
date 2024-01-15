@@ -1,8 +1,9 @@
 use super::schema::tasks;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
+use serde::Serialize;
 
-#[derive(Queryable, Selectable)]
+#[derive(Queryable, Selectable, Clone, Serialize)]
 #[diesel(table_name = tasks)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
 pub struct Task {

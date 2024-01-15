@@ -1,4 +1,8 @@
-use diesel::{associations::HasTable, prelude::*};
+use anyhow::Error;
+use diesel::{
+    prelude::*,
+    r2d2::{ConnectionManager, Pool},
+};
 use types::Task as TaskType;
 
 use crate::{
@@ -6,25 +10,29 @@ use crate::{
     schema::{self, tasks},
 };
 
-pub struct Tasks<'a> {
-    pub db_conn: &'a mut SqliteConnection,
+#[derive(Clone)]
+pub struct Tasks {
+    pub db: Pool<ConnectionManager<SqliteConnection>>,
 }
 
-impl<'a> Tasks<'a> {
-    pub fn new(db_conn: &'a mut SqliteConnection) -> Self {
-        Tasks { db_conn }
+impl Tasks {
+    pub fn new(db: Pool<ConnectionManager<SqliteConnection>>) -> Self {
+        Tasks { db }
     }
 
-    pub fn list(&mut self) -> Vec<Task> {
+    pub fn list(&mut self) -> Result<Vec<Task>, Error> {
         use schema::tasks::dsl::*;
+        let mut connection = self.db.get()?;
         let items: Vec<Task> = tasks
             .select(Task::as_select())
-            .load(self.db_conn)
+            .load(&mut connection)
             .expect("Error loading posts");
-        items
+        Ok(items)
     }
 
-    pub fn create(&mut self, task_title: &str) -> Task {
+    pub fn create(&mut self, task_title: &str) -> Result<Task, Error> {
+        let mut connection = self.db.get()?;
+
         let to_create = TaskType::new(task_title.to_owned());
         let created_task = diesel::insert_into(tasks::table)
             .values(&NewTask {
@@ -34,8 +42,8 @@ impl<'a> Tasks<'a> {
                 created_at: to_create.created_at,
             })
             .returning(Task::as_returning())
-            .get_result(self.db_conn)
+            .get_result(&mut connection)
             .expect("Error saving new post");
-        created_task
+        Ok(created_task)
     }
 }
