@@ -7,10 +7,16 @@ use yew::prelude::*;
 
 pub struct App {
     tasks: Vec<Task>,
+    loading_stage: ComponentLoadingStage,
 }
 
+pub enum ComponentLoadingStage {
+    Loading,
+    Success,
+    Error,
+}
 pub enum Msg {
-    ReloadTasks,
+    ReloadTasks(Vec<Task>),
 }
 
 impl App {
@@ -23,37 +29,51 @@ impl Component for App {
     type Message = Msg;
     type Properties = ();
 
-    fn create(ctx: &Context<Self>) -> Self {
-        // https://stackoverflow.com/questions/73408722/how-to-make-an-http-request-using-wasm-bindgen-futures-inside-a-yew-struct-compo
-        let tasks = use_state(|| Vec::new());
-        {
-            wasm_bindgen_futures::spawn_local({
-                let tasks = tasks.clone();
-                async move {
-                    let result = list_tasks().await.unwrap().clone();
-                    tasks.set(result.clone());
-                }
-            });
-        }
-
+    fn create(_: &Context<Self>) -> Self {
         Self {
-            tasks: tasks.into_prop_value(),
+            tasks: vec![],
+            loading_stage: ComponentLoadingStage::Loading,
         }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::ReloadTasks => {
-                web_sys::console::log_1(&"Reload tasks...".into());
+            Msg::ReloadTasks(tasks) => {
+                self.tasks = tasks;
             }
         }
         true
     }
 
+    fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
+        if first_render {
+            let link = ctx.link().clone();
+            wasm_bindgen_futures::spawn_local(async move {
+                let result = list_tasks().await.unwrap();
+                link.send_message(Msg::ReloadTasks(result));
+            });
+        }
+    }
+
     fn view(&self, ctx: &Context<Self>) -> Html {
         web_sys::console::log_1(&"Reload component...".into());
 
-        let on_task_created = ctx.link().callback(|_| Msg::ReloadTasks);
+        // let on_task_created = ctx.link().callback(|_| {
+        //     let link = ctx.link().clone();
+        //     wasm_bindgen_futures::spawn_local(async move {
+        //         let result = list_tasks().await.unwrap();
+        //         link.send_message(Msg::ReloadTasks(result));
+        //     });
+        // });
+
+        // let on_task_created: Callback<String> = Callback::from(move |_: String| {
+        //     let link = ctx.link().clone();
+        //     wasm_bindgen_futures::spawn_local(async move {
+        //         let result = list_tasks().await.unwrap();
+        //         link.send_message(Msg::ReloadTasks(result));
+        //     });
+        //     // web_sys::console::log_1(&greeting.into()); // if uncommented will print
+        // });
 
         html! {
             <div class="container">
