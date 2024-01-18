@@ -3,6 +3,7 @@ use yew::prelude::*;
 
 use crate::services::tasks_service::create_task;
 
+#[derive(Clone)]
 pub struct CreateTaskComponent {
     pub title: String,
     pub task_created: Callback<String>,
@@ -37,12 +38,12 @@ impl Component for CreateTaskComponent {
             }
             Msg::Add => {
                 let title = self.title.clone();
+                let mut that = self.clone();
                 wasm_bindgen_futures::spawn_local(async move {
                     create_task(title).await.unwrap();
+                    that.task_created.emit(that.title.clone());
+                    that.title.clear();
                 });
-
-                self.task_created.emit(self.title.clone());
-                self.title.clear();
             }
         }
         true

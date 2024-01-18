@@ -2,6 +2,7 @@ use anyhow::Error;
 use gloo_net::http::Request;
 use serde::Serialize;
 use serde_json::to_string;
+use std::result::Result;
 use types::Task;
 
 #[derive(Serialize)]

@@ -36,7 +36,7 @@ impl Component for TaskComponent {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <li>
-                <label id="task-{self.data.id}" class={if self.data.completed { "checked-item" } else { "" }}>
+                <label id={self.data.id.clone()} class={if self.data.completed { "checked-item" } else { "" }}>
                     <input
                         type="checkbox"
                         checked={self.data.completed}
